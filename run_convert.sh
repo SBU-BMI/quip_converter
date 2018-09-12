@@ -12,11 +12,13 @@ if [ ! -d "$folder" ]; then
 fi
 mkdir -p $folder/converted
 
-for i in `find $folder -name "*.vsi" -print`; do 
+find $folder -iname "*.vsi" | while read i
+do
 	echo $i;
-        fname="$(basename $i)"
-	filename="${fname%.*}"
+        fname="$(basename "$i")"
+	filename1="${fname%.*}"
+	filename=${filename1// /-};
 	mrfile="$folder/converted/$filename-multires.tif"
 	btfile="$folder/converted/$filename-bigtiff.tif"
-	run_convert_wsi.sh $i $btfile $mrfile
+	run_convert_wsi.sh "$i" "$btfile" "$mrfile"
 done
