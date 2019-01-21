@@ -15,7 +15,7 @@ mkdir -p $folder/converted
 find $folder -iname "*.vsi" | while read i
 do
 	echo $i;
-        fname="$(basename "$i")"
+	fname="$(basename "$i")"
 	filename1="${fname%.*}"
 	filename=${filename1// /-};
 	mrfile="$folder/converted/$filename-multires.tif"
