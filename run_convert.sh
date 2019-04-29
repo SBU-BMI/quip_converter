@@ -19,6 +19,5 @@ do
 	filename1="${fname%.*}"
 	filename=${filename1// /-};
 	mrfile="$folder/converted/$filename-multires.tif"
-	btfile="$folder/converted/$filename-bigtiff.tif"
-	run_convert_wsi.sh "$i" "$btfile" "$mrfile"
+	run_convert_wsi.sh "$i" "$mrfile"
 done
