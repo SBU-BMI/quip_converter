@@ -5,7 +5,7 @@ RUN 	apk update && \
 	apk add bash && \
 	apk add openjdk8-jre && \
         apk update && apk add ca-certificates && update-ca-certificates && apk add openssl
-RUN	wget --no-check-certificate https://downloads.openmicroscopy.org/bio-formats/6.1.0/artifacts/bftools.zip && \
+RUN	wget --no-check-certificate https://downloads.openmicroscopy.org/bio-formats/6.2.0/artifacts/bftools.zip && \
 	cd /usr/bin && unzip /bftools.zip && \
 	mv bftools/* . && rmdir bftools && \
 	rm -f /bftools.zip && cd /root	
