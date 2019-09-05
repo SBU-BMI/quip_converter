@@ -78,7 +78,13 @@ def main(argv):
         pf.at[file_idx,"original_filename"] = file_row
         pf.at[file_idx,"path"] = converted_filename
 
-    pf.to_csv(out_csv,index=False)
+        one_row = pd.DataFrame(columns=pf.columns)
+        tmp_row = pf.loc[file_idx,:]
+        one_row = one_row.append(tmp_row)
+        if file_idx == 0:
+           one_row.to_csv(out_csv,mode="w",index=False)
+       else:
+           one_row.to_csv(out_csv,mode="a",index=False,header=False)
 
     inp_file.close();
     out_csv.close();
