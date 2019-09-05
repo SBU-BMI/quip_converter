@@ -83,7 +83,7 @@ def main(argv):
         one_row = one_row.append(tmp_row)
         if file_idx == 0:
            one_row.to_csv(out_csv,mode="w",index=False)
-       else:
+        else:
            one_row.to_csv(out_csv,mode="a",index=False,header=False)
 
     inp_file.close();
