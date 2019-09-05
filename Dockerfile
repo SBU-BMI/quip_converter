@@ -5,16 +5,25 @@ RUN 	apk update && \
 		apk upgrade && \
 		apk add bash && \
 		apk add openjdk8-jre && \
-        apk update && apk add ca-certificates && update-ca-certificates && apk add openssl
+        apk update && apk add ca-certificates && update-ca-certificates && apk add openssl && \
+		apk add --no-cache python3-dev libstdc++ && \
+    	apk add --no-cache g++ && \
+    	ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+		apk add python3 && \
+		pip3 install numpy && \
+		pip3 install pandas
 RUN		wget --no-check-certificate https://downloads.openmicroscopy.org/bio-formats/6.2.0/artifacts/bftools.zip && \
 		cd /usr/bin && unzip /bftools.zip && \
 		mv bftools/* . && rmdir bftools && \
 		rm -f /bftools.zip && cd /root	
 
-ENV 	PROCAWKDIR /root
-COPY 	run_convert*.sh /usr/bin/
-COPY 	process.awk $PROCAWKDIR/
-RUN  	chmod 0755 /usr/bin/run_convert*.sh 
-ENV     JVM_ARGS="-Xms2048m -Xmx2048m"
+WORKDIR /root
 
-CMD 	["run_convert_all.sh","/data/images/manifest.csv"]
+COPY . /root/.
+RUN  chmod 0755 /root/run_convert*.sh 
+
+ENV  PROCAWKDIR=/root
+ENV  JVM_ARGS="-Xms2048m -Xmx2048m"
+ENV PATH=.:$PATH
+
+CMD 	["run_convert.sh"]
