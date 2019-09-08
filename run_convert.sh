@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python3 process_images.py $@
+python3 quip_wsi_converter.py $@
 exit $?

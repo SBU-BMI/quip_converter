@@ -24,7 +24,12 @@ bfconvert -bigtiff -compression LZW -series $s_idx "$inp_img" "$tmp_img"
 if [ "$?" != "0" ]; then
 	exit 2;
 fi
-vips tiffsave "$tmp_img" "$out_img" --compression=lzw --tile --tile-width=256 --tile-height=256 --pyramid --bigtiff
+
+# get pixel resolution in centimeters
+cres_x=`echo "10000/$mpp_x" | bc -l`
+cres_y=`echo "10000/$mpp_x" | bc -l`
+
+vips openslideload "$tmp_img" "$out_img"[compression=jpeg,Q=90,xres=$cres_x,yres=$cres_y,tile,bigtiff,pyramid] 
 if [ "$?" != "0" ]; then
 	exit 3;
 fi
