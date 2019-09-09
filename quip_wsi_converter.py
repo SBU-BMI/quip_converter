@@ -5,6 +5,7 @@ import os
 import os.path
 import pandas as pd
 import argparse
+import uuid
 
 convert_no_error = 0
 convert_no_error_msg = "conversion-no-error"
@@ -44,6 +45,7 @@ def convert_image(ifname,file_uuid):
 
 parser = argparse.ArgumentParser(description="Convert WSI images to multires, tiff images.")
 parser.add_argument("--inpmeta",nargs="?",default="quip_manifest.csv",type=str,help="input manifest (metadata) file.")
+parser.add_argument("--outmeta",nargs="?",default="quip_manifest.csv",type=str,help="output manifest (metadata) file.")
 parser.add_argument("--errfile",nargs="?",default="quip_wsi_error_log.json",type=str,help="error log file.")
 parser.add_argument("--inpdir",nargs="?",default="/data/images",type=str,help="input folder.")
 parser.add_argument("--outdir",nargs="?",default="/data/output",type=str,help="output folder.")
@@ -52,7 +54,7 @@ def main(args):
     inp_folder = args.inpdir
     out_folder = args.outdir
     inp_manifest_fname = args.inpmeta
-    out_manifest_fname = inp_manifest 
+    out_manifest_fname = args.outmeta 
     out_error_fname = args.errfile 
 
     out_error_fd = open(out_folder + "/" + out_error_fname,"w");
