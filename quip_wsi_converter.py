@@ -7,18 +7,17 @@ import pandas as pd
 import argparse
 import uuid
 
-convert_no_error = 0
-convert_no_error_msg = "conversion-no-error"
-convert_showinf_error = 1
-convert_showinf_error_msg = "showinf-failed"
-convert_fconvert_error = 2
-convert_fconvert_error_msg = "fconvert-failed"
-convert_vips_error = 3
-convert_vips_error_msg = "vips-failed"
+error_info = {}
+error_info["no_error"] = { "code":"0", "msg":"no-error" }
+error_info["missing_file"] = { "code":"301", "msg":"input-file-missing" }
+error_info["file_format"] = { "code":"302", "msg":"file-format-error" }
+error_info["missing_columns"] = { "code":"303", "msg":"missing-columns" }
+error_info["showinf_failed"] = { "code":"304", "msg":"showinf-failed" }
+error_info["fconvert_failed"] = { "code":"305", "msg":"fconvert-failed" }
+error_info["vips_failed"] = { "code":"306", "msg":"vips-failed" }
 
 def convert_image(ifname,file_uuid):
-    ierr_code = convert_no_error
-    ierr_msg  = convert_no_error_msg
+    ierr = error_info["no_error"]
     base_name = ntpath.basename(file_uuid)
     if not os.path.exists(file_uuid): 
         os.makedirs(file_uuid)
@@ -32,16 +31,13 @@ def convert_image(ifname,file_uuid):
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     process.wait()
     if process.returncode == 1:
-       ierr_code = convert_showinf_error;
-       ierr_msg  = convert_showinf_error_msg;
+        ierr = error_info["showinf_failed"]
     if process.returncode == 2:
-       ierr_code = convert_fconvert_error;
-       ierr_msg  = convert_fconvert_error_msg;
+        ierr = error_info["fconvert_failed"]
     if process.returncode == 3:
-       ierr_code = convert_vips_error;
-       ierr_msg  = convert_vips_error_msg;
+        ierr = error_info["vips_failed"]
 
-    return fname_out,ierr_code,ierr_msg
+    return fname_out,ierr
 
 parser = argparse.ArgumentParser(description="Convert WSI images to multires, tiff images.")
 parser.add_argument("--inpmeta",nargs="?",default="quip_manifest.csv",type=str,help="input manifest (metadata) file.")
@@ -64,9 +60,8 @@ def main(args):
     try:
         inp_metadata_fd = open(inp_folder + "/" + inp_manifest_fname);
     except OSError:
-        ierr = {}
-        ierr["error_code"] = 1
-        ierr["error_msg"] = "missing manifest file: " + str(inp_manifest_fname);
+        ierr = error_info["missing_file"]
+        ierr["msg"] = ierr["msg"]+": " + str(inp_manifest_fname);
         all_log["error"].append(ierr)
         json.dump(all_log,out_error_fd)
         out_error_fd.close()
@@ -74,9 +69,8 @@ def main(args):
 
     pf = pd.read_csv(inp_metadata_fd,sep=',')
     if "path" not in pf.columns:
-        ierr = {}
-        ierr["error_code"] = 2
-        ierr["error_msg"] = "column path is missing."
+        ierr = error_info["missing_columns"]
+        ierr["msg"] = ierr["msg"]+ ": "+ "path."
         all_log["error"].append(ierr)
         json.dump(all_log,out_error_fd)
         out_error_fd.close()
@@ -84,21 +78,25 @@ def main(args):
         sys.exit(1)
 
     if "file_uuid" not in pf.columns:
-        iwarn = {}
-        iwarn["warning_code"] = 1
-        iwarn["warning_msg"] = "column file_uuid is missing. Will generate."
+        iwarn = error_info["missing_columns"]
+        iwarn["msg"] = iwarn["msg"]+": "+"file_uuid. Will generate."
         all_log["warning"].append(iwarn)
         fp["file_uuid"] = "" 
         for idx, row in pf.iterrows(): 
             filename, file_extension = path.splitext(row["path"]) 
             pf.at[idx,"file_uuid"] = str(uuid.uuid1()) + file_extension
             
-    if "row_status" not in pf.columns:
-        iwarn = {}
-        iwarn["warning_code"] = 3
-        iwarn["warning_msg"] = "column row_status is missing. Will generate."
+    if "error_code" not in pf.columns:
+        iwarn = error_info["missing_columns"]
+        iwarn["msg"] = iwarn["msg"]+": "+"error_code. Will generate."
         all_log["warning"].append(iwarn)
-        fp["row_status"] = "ok"
+        fp["error_code"] = error_info["no_error"]["code"] 
+
+    if "error_msg" not in pf.columns:
+        iwarn = error_info["missing_columns"]
+        iwarn["msg"] = iwarn["msg"]+": "+"error_msg. Will generate."
+        all_log["warning"].append(iwarn)
+        fp["error_msg"] = error_info["no_error"]["msg"] 
  
     out_metadata_fd  = open(out_folder + "/" + out_manifest_fname,"w")
     pf["original_filename"]  = ""
@@ -109,19 +107,18 @@ def main(args):
 
         ifname = inp_folder+"/"+file_row
         ofname = out_folder+"/"+file_uuid
-        converted_filename,ierr_code,ierr_msg = convert_image(ifname,ofname)
-        if ierr_code != convert_no_error: 
-            ierr = {} 
-            ierr["error_code"] = ierr_code
-            ierr["error_msg"] = ierr_msg 
+        converted_filename,ierr = convert_image(ifname,ofname)
+        if ierr["code"] != error_info["no_error"]["code"]: 
             ierr["row_idx"] = file_idx
             ierr["filename"] = file_row 
             ierr["file_uuid"] = file_uuid
             all_log["error"].append(ierr) 
-            if pf["row_status"][file_idx]=="ok": 
-                pf.at[file_idx,"row_status"] = ierr_msg 
+            if pf["error_code"][file_idx]==error_info["no_error"]["code"]: 
+                pf.at[file_idx,"error_code"] = ierr["code"] 
+                pf.at[file_idx,"error_msg"] = ierr["msg"] 
             else: 
-                pf.at[file_idx,"row_status"] = pf["row_status"][file_idx]+";"+ierr_msg
+                pf.at[file_idx,"error_code"] = pf.at[file_idx,"error_code"]+";"+ierr["code"] 
+                pf.at[file_idx,"error_msg"] = pf.at[file_idx,"error_msg"]+";"+ierr["msg"] 
         pf.at[file_idx,"original_filename"] = file_row
         pf.at[file_idx,"path"] = converted_filename
 
