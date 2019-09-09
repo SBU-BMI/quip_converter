@@ -8,13 +8,13 @@ import argparse
 import uuid
 
 error_info = {}
-error_info["no_error"] = { "code":"0", "msg":"no-error" }
-error_info["missing_file"] = { "code":"301", "msg":"input-file-missing" }
-error_info["file_format"] = { "code":"302", "msg":"file-format-error" }
-error_info["missing_columns"] = { "code":"303", "msg":"missing-columns" }
-error_info["showinf_failed"] = { "code":"304", "msg":"showinf-failed" }
-error_info["fconvert_failed"] = { "code":"305", "msg":"fconvert-failed" }
-error_info["vips_failed"] = { "code":"306", "msg":"vips-failed" }
+error_info["no_error"] = { "code":0, "msg":"no-error" }
+error_info["missing_file"] = { "code":301, "msg":"input-file-missing" }
+error_info["file_format"] = { "code":302, "msg":"file-format-error" }
+error_info["missing_columns"] = { "code":303, "msg":"missing-columns" }
+error_info["showinf_failed"] = { "code":304, "msg":"showinf-failed" }
+error_info["fconvert_failed"] = { "code":305, "msg":"fconvert-failed" }
+error_info["vips_failed"] = { "code":306, "msg":"vips-failed" }
 
 def convert_image(ifname,file_uuid):
     ierr = error_info["no_error"]
@@ -90,7 +90,7 @@ def main(args):
         iwarn = error_info["missing_columns"]
         iwarn["msg"] = iwarn["msg"]+": "+"error_code. Will generate."
         all_log["warning"].append(iwarn)
-        fp["error_code"] = error_info["no_error"]["code"] 
+        fp["error_code"] = str(error_info["no_error"]["code"]) 
 
     if "error_msg" not in pf.columns:
         iwarn = error_info["missing_columns"]
@@ -108,16 +108,16 @@ def main(args):
         ifname = inp_folder+"/"+file_row
         ofname = out_folder+"/"+file_uuid
         converted_filename,ierr = convert_image(ifname,ofname)
-        if ierr["code"] != error_info["no_error"]["code"]: 
+        if str(ierr["code"]) != str(error_info["no_error"]["code"]):
             ierr["row_idx"] = file_idx
             ierr["filename"] = file_row 
             ierr["file_uuid"] = file_uuid
             all_log["error"].append(ierr) 
-            if pf["error_code"][file_idx]==error_info["no_error"]["code"]: 
-                pf.at[file_idx,"error_code"] = ierr["code"] 
+            if str(pf["error_code"][file_idx])==str(error_info["no_error"]["code"]): 
+                pf.at[file_idx,"error_code"] = str(ierr["code"]) 
                 pf.at[file_idx,"error_msg"] = ierr["msg"] 
             else: 
-                pf.at[file_idx,"error_code"] = pf.at[file_idx,"error_code"]+";"+ierr["code"] 
+                pf.at[file_idx,"error_code"] = str(pf.at[file_idx,"error_code"])+";"+str(ierr["code"]) 
                 pf.at[file_idx,"error_msg"] = pf.at[file_idx,"error_msg"]+";"+ierr["msg"] 
         pf.at[file_idx,"original_filename"] = file_row
         pf.at[file_idx,"path"] = converted_filename
