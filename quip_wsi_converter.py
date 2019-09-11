@@ -38,7 +38,7 @@ def convert_image(ifname,file_uuid):
     if process.returncode == 3:
         ierr = error_info["vips_failed"]
 
-    return fname_out,ierr
+    return base_name+"/"+ntpath.basename(fname_out),ierr
 
 parser = argparse.ArgumentParser(description="Convert WSI images to multires, tiff images.")
 parser.add_argument("--inpmeta",nargs="?",default="quip_manifest.csv",type=str,help="input manifest (metadata) file.")
