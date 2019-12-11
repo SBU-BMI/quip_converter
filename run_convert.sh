@@ -12,7 +12,6 @@ if [ ! -d "$folder" ]; then
    exit 1
 fi
 mkdir -p $folder/converted
-
 find $folder -iname "*.$extension" | while read i
 do
 	echo $i;
