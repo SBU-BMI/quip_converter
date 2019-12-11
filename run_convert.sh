@@ -20,5 +20,6 @@ do
 	filename1="${fname%.*}"
 	filename=${filename1// /-};
 	mrfile="$folder/converted/$filename-multires.tif"
-	run_convert_wsi.sh "$i" "$mrfile"
+	tmpfile="$folder/converted/$filename-tmp.tif"
+	run_convert_wsi.sh "$i" "$tmpfile" "$mrfile"
 done
