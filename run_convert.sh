@@ -11,13 +11,12 @@ if [ ! -d "$folder" ]; then
    echo "Folder: " $inp_folder "does not exist."
    exit 1
 fi
-find $folder -iname "*.$extension" | while read i
+find $folder -name "*.$extension" | while read i
 do
 	echo $i;
-	fname="$(basename "$i")"
-	filename1="${fname%.*}"
-	filename=${filename1// /-};
-	mrfile="$folder/$filename-multires.tif"
-	tmpfile="$folder/$filename-big.tif"
+        filename=${i/.$2/};
+        filename=${filename// /-};
+        mrfile="$filename-multires.tif"
+        tmpfile="$filename-big.tif"
 	run_convert_wsi.sh "$i" "$tmpfile" "$mrfile"
 done
