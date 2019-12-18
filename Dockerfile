@@ -1,11 +1,11 @@
 FROM codechimpio/vips-alpine:latest
-LABEL authors="Tahsin Kurc, Erich Bremer"
+LABEL authors="Erich Bremer, Tahsin Kurc"
 RUN 	apk update && \
 	apk upgrade && \
 	apk add bash && \
 	apk add openjdk8-jre && \
         apk update && apk add ca-certificates && update-ca-certificates && apk add openssl
-RUN	wget --no-check-certificate https://downloads.openmicroscopy.org/bio-formats/6.2.0/artifacts/bftools.zip && \
+RUN	wget --no-check-certificate https://downloads.openmicroscopy.org/bio-formats/6.3.1/artifacts/bftools.zip && \
 	cd /usr/bin && unzip /bftools.zip && \
 	mv bftools/* . && rmdir bftools && \
 	rm -f /bftools.zip && cd /root	
