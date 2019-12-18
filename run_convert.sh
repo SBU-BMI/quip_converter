@@ -15,7 +15,6 @@ find $folder -name "*.$extension" | while read i
 do
 	echo $i;
         filename=${i/.$2/};
-        filename=${filename// /-};
         mrfile="$filename-multires.tif"
         tmpfile="$filename-big.tif"
 	run_convert_wsi.sh "$i" "$tmpfile" "$mrfile"
