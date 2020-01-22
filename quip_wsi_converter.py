@@ -101,7 +101,7 @@ def main(args):
  
     out_metadata_fd  = open(out_folder + "/" + out_manifest_fname,"w")
     pf["original_filename"]  = ""
-    for file_idx in range(len(pf["path"]))
+    for file_idx in range(len(pf["path"])):
         file_row = pf["path"][file_idx]
         file_uuid = pf["file_uuid"][file_idx]
         print("Processing: ",file_row)
