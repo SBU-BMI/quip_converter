@@ -19,4 +19,6 @@ mpp_y=`echo $read_val | awk -F ',' '{print $3}'`;
 echo "FILE: " "$inp_img" " ID: " $s_idx " MPP: " $mpp_x "x" $mpp_y
 
 bfconvert -bigtiff -compression LZW -series $s_idx "$inp_img" "$tmp_img"	
-vips tiffsave "$tmp_img" "$out_img" --xres $mpp_x --yres $mpp_y --compression=lzw --tile --tile-width=256 --tile-height=256 --pyramid --bigtiff
+vips tiffsave "$tmp_img" "$out_img" --compression=deflate --tile --tile-width=256 --tile-height=256 --pyramid --bigtiff
+rm -f "$tmp_img"
+
