@@ -3,9 +3,10 @@ MAINTAINER Tahsin Kurc
 
 RUN 	apk update && \
 	apk upgrade && \
-	apk add bash && \
-	apk add openjdk7-jre && \
-	wget http://downloads.openmicroscopy.org/bio-formats/5.9.0/artifacts/bftools.zip && \
+	apk add --update openssl && \
+	apk add --update bash && \
+	apk add --update openjdk7-jre && \
+	wget --no-check-certificate http://downloads.openmicroscopy.org/bio-formats/5.9.0/artifacts/bftools.zip && \
 	cd /usr/bin && unzip /bftools.zip && \
 	mv bftools/* . && rmdir bftools && \
 	rm -f /bftools.zip && cd /root	
